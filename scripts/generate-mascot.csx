@@ -13,11 +13,11 @@ using System.IO;
 // Absolute output path
 // ------------------------------
 var root = Directory.GetCurrentDirectory();
-var outDir = Path.Combine(root, "../mascots");
+var outDir = System.IO.Path.Combine(root, "../mascots");
 Directory.CreateDirectory(outDir);
 
 var tag = Args[0];
-var outFile = Path.Combine(outDir, $"{tag}.png");
+var outFile = System.IO.Path.Combine(outDir, $"{tag}.png");
 
 // ------------------------------
 // Helpers
