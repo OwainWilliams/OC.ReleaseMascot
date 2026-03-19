@@ -12,9 +12,6 @@ using System.IO;
 // ------------------------------
 // Absolute output path
 // ------------------------------
-var outDir = System.IO.Path.Combine(__SOURCE_DIRECTORY__, "..", "mascots");
-Directory.CreateDirectory(outDir);
-
 var tag = Args[0];
 var repoRoot = Args[1];
 var outDir = System.IO.Path.Combine(repoRoot, "mascots");
