@@ -25,7 +25,6 @@ Write-Host "Mascot name: $mascotName"
 
 # 3. Ensure mascots folder exists
 $mascotsDir = Join-Path $PSScriptRoot "..\mascots"
-$mascotsDir = (Resolve-Path $mascotsDir).Path 2>$null -or (New-Item -ItemType Directory -Path $mascotsDir).FullName
 
 if (-not (Test-Path $mascotsDir)) {
     New-Item -ItemType Directory -Path $mascotsDir | Out-Null
