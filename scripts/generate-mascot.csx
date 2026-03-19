@@ -42,6 +42,8 @@ img.Mutate(ctx =>
 {
     ctx.Fill(eye, new Rectangle(7, 10, 2, 1));
 });
+// Scale up 16x → 256x256 for visibility
+img.Mutate(ctx => ctx.Resize(size * 16, size * 16, KnownResamplers.NearestNeighbor));
 
 // Save
 var tag = Args[0];
