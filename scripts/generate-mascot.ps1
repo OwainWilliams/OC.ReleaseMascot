@@ -15,7 +15,8 @@ $content = Get-Content $readme -Raw
 $base64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($png))
 $md = "![Release Mascot](data:image/png;base64,$base64)"
 
-$updated = $content -replace "<!-- MASCOT -->.*<!-- /MASCOT -->", "<!-- MASCOT -->`n$md`n<!-- /MASCOT -->"
+$updated = $content -replace "(?s)<!-- MASCOT -->.*<!-- /MASCOT -->", "<!-- MASCOT -->`n$md`n<!-- /MASCOT -->"
+
 
 Set-Content -Path $readme -Value $updated
 Write-Host "README updated."
