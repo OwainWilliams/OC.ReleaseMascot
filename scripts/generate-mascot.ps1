@@ -2,100 +2,33 @@ param(
     [string]$Tag
 )
 
-Write-Host "Running Generate-Mascot.ps1 for tag: $Tag"
-
-# 1. Define adjectives and animals
-$adjectives = @(
-    'Jubilant', 'Stoic', 'Curious', 'Determined', 'Sleepy',
-    'Radiant', 'Mischievous', 'Gallant', 'Whimsical', 'Bold'
-)
-
-$animals = @(
-    'Pangolin', 'Capybara', 'Otter', 'Red Panda', 'Lynx',
-    'Hedgehog', 'Raccoon', 'Badger', 'Fox', 'Alpaca'
-)
-
-# 2. Pick random items
-$rand = New-Object System.Random
-$adj = $adjectives[$rand.Next(0, $adjectives.Count)]
-$animal = $animals[$rand.Next(0, $animals.Count)]
-$mascotName = "The $adj $animal"
-
-Write-Host "Mascot name: $mascotName"
-
-# 3. Ensure mascots folder exists
-$mascotsDir = Join-Path $PSScriptRoot "..\mascots"
-
-if (-not (Test-Path $mascotsDir)) {
-    New-Item -ItemType Directory -Path $mascotsDir | Out-Null
+# Ensure output folder exists
+$mascotDir = "mascots"
+if (-not (Test-Path $mascotDir)) {
+    New-Item -ItemType Directory -Path $mascotDir | Out-Null
 }
 
-# 4. Build SVG content
-$colors = @('#FF6B6B', '#4ECDC4', '#FFD93D', '#6C5CE7', '#00B894')
-$bg = $colors[$rand.Next(0, $colors.Count)]
+# Output file path
+$outFile = "$mascotDir/$Tag.png"
 
-do {
-    $circle = $colors[$rand.Next(0, $colors.Count)]
-} while ($circle -eq $bg)
+# --- Generate the creature ---
+# (Paste the cute symmetrical creature generator here)
+# Replace the final save line with:
+$bmp.Save($outFile, [System.Drawing.Imaging.ImageFormat]::Png)
 
-$svg = @"
-<svg width="600" height="300" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
-  <rect width="600" height="300" fill="$bg" rx="24" />
-  <circle cx="120" cy="150" r="70" fill="$circle" opacity="0.9" />
-  <text x="220" y="140" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-        font-size="28" fill="#ffffff" font-weight="600">
-    $mascotName
-  </text>
-  <text x="220" y="180" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-        font-size="16" fill="#f0f0f0">
-    Release: $Tag
-  </text>
-</svg>
-"@
+Write-Host "Generated mascot: $outFile"
 
-# 5. Save SVG file
-$svgFileName = "$Tag.svg"
-$svgPath = Join-Path $mascotsDir $svgFileName
-$svg | Out-File -FilePath $svgPath -Encoding utf8
+# --- Embed into README ---
+$readme = "README.md"
+$readmeContent = Get-Content $readme -Raw
 
-Write-Host "SVG written to $svgPath"
+# Convert PNG to base64
+$imgBase64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($outFile))
+$mdImage = "![Release Mascot](data:image/png;base64,$imgBase64)"
 
-# 6. Update README.md
-$repoRoot = Join-Path $PSScriptRoot ".."
-$readmePath = Join-Path $repoRoot "README.md"
+# Replace placeholder in README
+$updated = $readmeContent -replace "<!-- MASCOT -->.*<!-- /MASCOT -->", "<!-- MASCOT -->`n$mdImage`n<!-- /MASCOT -->"
 
-if (-not (Test-Path $readmePath)) {
-    throw "README.md not found at $readmePath"
-}
+Set-Content -Path $readme -Value $updated
 
-$readme = Get-Content $readmePath -Raw
-
-$startMarker = "<!-- mascot-start -->"
-$endMarker = "<!-- mascot-end -->"
-
-$startIndex = $readme.IndexOf($startMarker)
-$endIndex = $readme.IndexOf($endMarker)
-
-if ($startIndex -lt 0 -or $endIndex -lt 0) {
-    throw "Mascot markers not found in README.md"
-}
-
-$before = $readme.Substring(0, $startIndex + $startMarker.Length)
-$after = $readme.Substring($endIndex)
-
-# Make path relative for README
-$relativePath = "mascots/$svgFileName"
-
-$middle = @"
-
-## 🐾 Release Mascot: $mascotName
-
-![$mascotName]($relativePath)
-
-"@
-
-$updated = $before + $middle + $after
-
-$updated | Out-File -FilePath $readmePath -Encoding utf8
-
-Write-Host "README.md updated with new mascot."
+Write-Host "README updated with new mascot."
