@@ -12,8 +12,7 @@ using System.IO;
 // ------------------------------
 // Absolute output path
 // ------------------------------
-var root = Directory.GetCurrentDirectory();
-var outDir = System.IO.Path.Combine(root, "/mascots");
+var outDir = System.IO.Path.Combine(__SOURCE_DIRECTORY__, "..", "mascots");
 Directory.CreateDirectory(outDir);
 
 var tag = Args[0];
