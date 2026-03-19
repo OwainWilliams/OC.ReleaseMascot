@@ -10,7 +10,7 @@ using System;
 using System.IO;
 
 // ------------------------------
-// FIX 1: Ensure absolute paths
+// Absolute output path
 // ------------------------------
 var root = Directory.GetCurrentDirectory();
 var outDir = Path.Combine(root, "mascots");
@@ -20,135 +20,152 @@ var tag = Args[0];
 var outFile = Path.Combine(outDir, $"{tag}.png");
 
 // ------------------------------
-// Monster generator
+// Helpers
 // ------------------------------
-
-int size = 32;
-var rand = new Random();
-
-Color RandomColor() =>
-    Color.FromRgb(
-        (byte)rand.Next(80, 255),
-        (byte)rand.Next(80, 255),
-        (byte)rand.Next(80, 255)
+Rgba32 RandomColor()
+{
+    return new Rgba32(
+        (byte)Random.Shared.Next(80, 255),
+        (byte)Random.Shared.Next(80, 255),
+        (byte)Random.Shared.Next(80, 255)
     );
+}
 
+Rgba32 Darken(Rgba32 c, int amount)
+{
+    return new Rgba32(
+        (byte)Math.Max(c.R - amount, 0),
+        (byte)Math.Max(c.G - amount, 0),
+        (byte)Math.Max(c.B - amount, 0)
+    );
+}
+
+Rgba32 Lighten(Rgba32 c, int amount)
+{
+    return new Rgba32(
+        (byte)Math.Min(c.R + amount, 255),
+        (byte)Math.Min(c.G + amount, 255),
+        (byte)Math.Min(c.B + amount, 255)
+    );
+}
+
+// ------------------------------
+// Monster setup
+// ------------------------------
+int size = 32;
 var body = RandomColor();
-var outline = Color.FromRgb(
-    (byte)Math.Max(body.R - 40, 0),
-    (byte)Math.Max(body.G - 40, 0),
-    (byte)Math.Max(body.B - 40, 0)
-);
+var outline = Darken(body, 40);
+var belly = Lighten(body, 40);
 
 var img = new Image<Rgba32>(size, size);
 img.Mutate(ctx => ctx.Fill(Color.Transparent));
 
 string[] types = { "slime", "ghost", "dragon", "imp", "beast", "winged" };
-string monster = types[rand.Next(types.Length)];
+string monster = types[Random.Shared.Next(types.Length)];
 
+// ------------------------------
+// Silhouette drawing helpers
+// ------------------------------
+void FillEllipse(IImageProcessingContext ctx, Rgba32 color, float cx, float cy, float rx, float ry)
+{
+    var shape = new EllipsePolygon(cx, cy, rx, ry);
+    ctx.Fill(color, shape);
+}
+
+void FillPoly(IImageProcessingContext ctx, Rgba32 color, params (float x, float y)[] pts)
+{
+    var points = new PointF[pts.Length];
+    for (int i = 0; i < pts.Length; i++)
+        points[i] = new PointF(pts[i].x, pts[i].y);
+
+    var poly = new Polygon(new LinearLineSegment(points));
+    ctx.Fill(color, poly);
+}
+
+// ------------------------------
+// Draw monster silhouette
+// ------------------------------
 img.Mutate(ctx =>
 {
     switch (monster)
     {
         case "slime":
-            ctx.Fill(outline, new EllipsePolygon(16, 18, 12));
-            ctx.Fill(body, new EllipsePolygon(16, 18, 11));
+            FillEllipse(ctx, outline, 16, 18, 12, 12);
+            FillEllipse(ctx, body,    16, 18, 11, 11);
             break;
 
         case "ghost":
-            ctx.Fill(outline, new EllipsePolygon(16, 14, 10));
-            ctx.Fill(body, new EllipsePolygon(16, 14, 9));
-            ctx.Fill(outline, new Polygon(new PointF[] {
-                new(6,22), new(10,28), new(14,22), new(18,28), new(22,22)
-            }));
-            ctx.Fill(body, new Polygon(new PointF[] {
-                new(7,22), new(10,27), new(14,22), new(18,27), new(21,22)
-            }));
+            FillEllipse(ctx, outline, 16, 14, 10, 10);
+            FillEllipse(ctx, body,    16, 14,  9,  9);
+
+            FillPoly(ctx, outline, (6,22), (10,28), (14,22), (18,28), (22,22));
+            FillPoly(ctx, body,    (7,22), (10,27), (14,22), (18,27), (21,22));
             break;
 
         case "dragon":
-            ctx.Fill(outline, new EllipsePolygon(16, 18, 11));
-            ctx.Fill(body, new EllipsePolygon(16, 18, 10));
+            FillEllipse(ctx, outline, 16, 18, 11, 11);
+            FillEllipse(ctx, body,    16, 18, 10, 10);
 
-            ctx.Fill(outline, new Polygon(new PointF[] {
-                new(10,6), new(8,2), new(12,6)
-            }));
-            ctx.Fill(outline, new Polygon(new PointF[] {
-                new(22,6), new(24,2), new(20,6)
-            }));
-            ctx.Fill(body, new Polygon(new PointF[] {
-                new(10,6), new(9,3), new(11,6)
-            }));
-            ctx.Fill(body, new Polygon(new PointF[] {
-                new(22,6), new(23,3), new(21,6)
-            }));
+            // horns
+            FillPoly(ctx, outline, (10,6), (8,2), (12,6));
+            FillPoly(ctx, outline, (22,6), (24,2), (20,6));
+            FillPoly(ctx, body,    (10,6), (9,3), (11,6));
+            FillPoly(ctx, body,    (22,6), (23,3), (21,6));
 
-            ctx.Fill(outline, new Polygon(new PointF[] {
-                new(16,28), new(14,30), new(18,30)
-            }));
-            ctx.Fill(body, new Polygon(new PointF[] {
-                new(16,28), new(15,29), new(17,29)
-            }));
+            // tail spike
+            FillPoly(ctx, outline, (16,28), (14,30), (18,30));
+            FillPoly(ctx, body,    (16,28), (15,29), (17,29));
             break;
 
         case "imp":
-            ctx.Fill(outline, new EllipsePolygon(16, 18, 10));
-            ctx.Fill(body, new EllipsePolygon(16, 18, 9));
+            FillEllipse(ctx, outline, 16, 18, 10, 10);
+            FillEllipse(ctx, body,    16, 18,  9,  9);
 
-            ctx.Fill(outline, new EllipsePolygon(10, 6, 2));
-            ctx.Fill(outline, new EllipsePolygon(22, 6, 2));
-            ctx.Fill(body, new EllipsePolygon(10, 6, 1));
-            ctx.Fill(body, new EllipsePolygon(22, 6, 1));
+            FillEllipse(ctx, outline, 10, 6, 2, 2);
+            FillEllipse(ctx, outline, 22, 6, 2, 2);
+            FillEllipse(ctx, body,    10, 6, 1, 1);
+            FillEllipse(ctx, body,    22, 6, 1, 1);
             break;
 
         case "beast":
-            ctx.Fill(outline, new EllipsePolygon(16, 18, 12));
-            ctx.Fill(body, new EllipsePolygon(16, 18, 11));
+            FillEllipse(ctx, outline, 16, 18, 12, 12);
+            FillEllipse(ctx, body,    16, 18, 11, 11);
 
-            ctx.Fill(outline, new EllipsePolygon(8, 8, 3));
-            ctx.Fill(outline, new EllipsePolygon(24, 8, 3));
-            ctx.Fill(body, new EllipsePolygon(8, 8, 2));
-            ctx.Fill(body, new EllipsePolygon(24, 8, 2));
+            FillEllipse(ctx, outline, 8, 8, 3, 3);
+            FillEllipse(ctx, outline, 24, 8, 3, 3);
+            FillEllipse(ctx, body,    8, 8, 2, 2);
+            FillEllipse(ctx, body,    24, 8, 2, 2);
             break;
 
         case "winged":
-            ctx.Fill(outline, new EllipsePolygon(16, 18, 10));
-            ctx.Fill(body, new EllipsePolygon(16, 18, 9));
+            FillEllipse(ctx, outline, 16, 18, 10, 10);
+            FillEllipse(ctx, body,    16, 18,  9,  9);
 
-            ctx.Fill(outline, new EllipsePolygon(6, 18, 6, 3));
-            ctx.Fill(outline, new EllipsePolygon(26, 18, 6, 3));
-            ctx.Fill(body, new EllipsePolygon(6, 18, 5, 2));
-            ctx.Fill(body, new EllipsePolygon(26, 18, 5, 2));
+            FillEllipse(ctx, outline, 6, 18, 6, 3);
+            FillEllipse(ctx, outline, 26,18, 6, 3);
+            FillEllipse(ctx, body,    6, 18, 5, 2);
+            FillEllipse(ctx, body,    26,18, 5, 2);
             break;
     }
 });
 
 // Belly highlight
-var belly = Color.FromRgb(
-    (byte)Math.Min(body.R + 40, 255),
-    (byte)Math.Min(body.G + 40, 255),
-    (byte)Math.Min(body.B + 40, 255)
-);
-
 img.Mutate(ctx =>
 {
-    ctx.Fill(belly, new EllipsePolygon(16, 20, 5));
+    FillEllipse(ctx, belly, 16, 20, 5, 5);
 });
 
 // Face
-var eye = Color.Black;
 img.Mutate(ctx =>
 {
-    ctx.Fill(eye, new Rectangle(12, 16, 2, 2));
-    ctx.Fill(eye, new Rectangle(18, 16, 2, 2));
-    ctx.Fill(eye, new Rectangle(15, 20, 2, 1));
+    ctx.Fill(Color.Black, new Rectangle(12, 16, 2, 2));
+    ctx.Fill(Color.Black, new Rectangle(18, 16, 2, 2));
+    ctx.Fill(Color.Black, new Rectangle(15, 20, 2, 1));
 });
 
 // Scale up
 img.Mutate(ctx => ctx.Resize(size * 8, size * 8, KnownResamplers.NearestNeighbor));
 
-// ------------------------------
-// FIX 2: Save to absolute path
-// ------------------------------
+// Save
 img.Save(outFile);
 Console.WriteLine($"Saved mascot to: {outFile}");
