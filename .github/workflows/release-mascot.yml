@@ -1,0 +1,33 @@
+name: Release Mascot
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  generate-mascot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run mascot generator
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          Write-Host "Release tag is $tag"
+          ./scripts/Generate-Mascot.ps1 -Tag $tag
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md mascots/
+          git commit -m "chore: add release mascot for ${{ github.ref_name }}" || echo "No changes to commit"
+          git push
