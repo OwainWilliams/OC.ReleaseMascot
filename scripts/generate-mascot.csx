@@ -13,7 +13,7 @@ using System.IO;
 // Absolute output path
 // ------------------------------
 var root = Directory.GetCurrentDirectory();
-var outDir = Path.Combine(root, "mascots");
+var outDir = Path.Combine(root, "../mascots");
 Directory.CreateDirectory(outDir);
 
 var tag = Args[0];
