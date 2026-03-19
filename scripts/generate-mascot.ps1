@@ -3,7 +3,8 @@ param(
 )
 
 # Run the C# generator
-dotnet script ./scripts/generate-mascot.csx -- $Tag
+$repoRoot = $PSScriptRoot | Split-Path -Parent
+dotnet script ./scripts/generate-mascot.csx -- $tag $repoRoot
 
 $png = "mascots/$Tag.png"
 Write-Host "Generated mascot: $png"
