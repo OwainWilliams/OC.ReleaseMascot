@@ -26,4 +26,4 @@ runs:
     - name: Generate mascot image
       shell: bash
       run: |
-        dotnet script "${{ github.action_path }}/scripts/generate-mascot.csx" -- "${{ inputs.Tag }}"
+        dotnet script "${{ github.action_path }}/scripts/generate-mascot.csx" -- "${{ inputs.Tag }}" "${{ github.workspace }}"
