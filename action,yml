@@ -1,0 +1,29 @@
+name: 'OC Release Mascot'
+description: 'Generates a unique mascot image for a release and commits it to the repository'
+author: 'OwainWilliams'
+
+inputs:
+  Tag:
+    description: 'The release tag name (e.g. 1.0.0). Used to name the mascot file and seed generation.'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Install dotnet-script
+      shell: bash
+      run: dotnet tool install -g dotnet-script
+
+    - name: Add dotnet tools to PATH
+      shell: bash
+      run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+    - name: Generate mascot image
+      shell: bash
+      run: |
+        dotnet script "${{ github.action_path }}/scripts/generate-mascot.csx" -- "${{ inputs.Tag }}"
