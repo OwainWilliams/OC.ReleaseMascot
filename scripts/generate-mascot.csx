@@ -16,6 +16,9 @@ var outDir = System.IO.Path.Combine(__SOURCE_DIRECTORY__, "..", "mascots");
 Directory.CreateDirectory(outDir);
 
 var tag = Args[0];
+var repoRoot = Args[1];
+var outDir = System.IO.Path.Combine(repoRoot, "mascots");
+Directory.CreateDirectory(outDir);
 var outFile = System.IO.Path.Combine(outDir, $"{tag}.png");
 
 // ------------------------------
