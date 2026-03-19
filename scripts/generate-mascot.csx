@@ -5,45 +5,141 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.Drawing;
+using System;
 
-int size = 16;
+// Canvas size (base pixel grid)
+int size = 32;
 var rand = new Random();
 
-Color Pastel() =>
+// Pastel-ish but with monster variation
+Color RandomColor() =>
     Color.FromRgb(
-        (byte)rand.Next(150, 255),
-        (byte)rand.Next(150, 255),
-        (byte)rand.Next(150, 255)
+        (byte)rand.Next(80, 255),
+        (byte)rand.Next(80, 255),
+        (byte)rand.Next(80, 255)
     );
 
-var body = Pastel();
-var eye = Color.Black;
-var blush = Color.FromRgb(255, 120, 120);
+var body = RandomColor();
+var outline = Color.FromRgb(
+    (byte)Math.Max(body.R - 40, 0),
+    (byte)Math.Max(body.G - 40, 0),
+    (byte)Math.Max(body.B - 40, 0)
+);
 
 var img = new Image<Rgba32>(size, size);
-img.Mutate(ctx => ctx.Fill(body));
+img.Mutate(ctx => ctx.Fill(Color.Transparent));
 
-// Eyes
+// Pick monster type
+string[] types = { "slime", "ghost", "dragon", "imp", "beast", "winged" };
+string monster = types[rand.Next(types.Length)];
+
+// Draw silhouette
 img.Mutate(ctx =>
 {
-    ctx.Fill(eye, new Rectangle(6, 7, 1, 1));
-    ctx.Fill(eye, new Rectangle(9, 7, 1, 1));
+    switch (monster)
+    {
+        case "slime":
+            ctx.Fill(outline, new EllipsePolygon(16, 18, 12));
+            ctx.Fill(body, new EllipsePolygon(16, 18, 11));
+            break;
+
+        case "ghost":
+            ctx.Fill(outline, new EllipsePolygon(16, 14, 10));
+            ctx.Fill(body, new EllipsePolygon(16, 14, 9));
+            ctx.Fill(outline, new Polygon(new PointF[] {
+                new(6,22), new(10,28), new(14,22), new(18,28), new(22,22)
+            }));
+            ctx.Fill(body, new Polygon(new PointF[] {
+                new(7,22), new(10,27), new(14,22), new(18,27), new(21,22)
+            }));
+            break;
+
+        case "dragon":
+            ctx.Fill(outline, new EllipsePolygon(16, 18, 11));
+            ctx.Fill(body, new EllipsePolygon(16, 18, 10));
+
+            // horns
+            ctx.Fill(outline, new Polygon(new PointF[] {
+                new(10,6), new(8,2), new(12,6)
+            }));
+            ctx.Fill(outline, new Polygon(new PointF[] {
+                new(22,6), new(24,2), new(20,6)
+            }));
+            ctx.Fill(body, new Polygon(new PointF[] {
+                new(10,6), new(9,3), new(11,6)
+            }));
+            ctx.Fill(body, new Polygon(new PointF[] {
+                new(22,6), new(23,3), new(21,6)
+            }));
+
+            // tail spike
+            ctx.Fill(outline, new Polygon(new PointF[] {
+                new(16,28), new(14,30), new(18,30)
+            }));
+            ctx.Fill(body, new Polygon(new PointF[] {
+                new(16,28), new(15,29), new(17,29)
+            }));
+            break;
+
+        case "imp":
+            ctx.Fill(outline, new EllipsePolygon(16, 18, 10));
+            ctx.Fill(body, new EllipsePolygon(16, 18, 9));
+
+            // small horns
+            ctx.Fill(outline, new EllipsePolygon(10, 6, 2));
+            ctx.Fill(outline, new EllipsePolygon(22, 6, 2));
+            ctx.Fill(body, new EllipsePolygon(10, 6, 1));
+            ctx.Fill(body, new EllipsePolygon(22, 6, 1));
+            break;
+
+        case "beast":
+            ctx.Fill(outline, new EllipsePolygon(16, 18, 12));
+            ctx.Fill(body, new EllipsePolygon(16, 18, 11));
+
+            // ears
+            ctx.Fill(outline, new EllipsePolygon(8, 8, 3));
+            ctx.Fill(outline, new EllipsePolygon(24, 8, 3));
+            ctx.Fill(body, new EllipsePolygon(8, 8, 2));
+            ctx.Fill(body, new EllipsePolygon(24, 8, 2));
+            break;
+
+        case "winged":
+            ctx.Fill(outline, new EllipsePolygon(16, 18, 10));
+            ctx.Fill(body, new EllipsePolygon(16, 18, 9));
+
+            // wings
+            ctx.Fill(outline, new EllipsePolygon(6, 18, 6, 3));
+            ctx.Fill(outline, new EllipsePolygon(26, 18, 6, 3));
+            ctx.Fill(body, new EllipsePolygon(6, 18, 5, 2));
+            ctx.Fill(body, new EllipsePolygon(26, 18, 5, 2));
+            break;
+    }
 });
 
-// Blush
+// Add belly highlight
+var belly = Color.FromRgb(
+    (byte)Math.Min(body.R + 40, 255),
+    (byte)Math.Min(body.G + 40, 255),
+    (byte)Math.Min(body.B + 40, 255)
+);
+
 img.Mutate(ctx =>
 {
-    ctx.Fill(blush, new Rectangle(5, 9, 1, 1));
-    ctx.Fill(blush, new Rectangle(10, 9, 1, 1));
+    ctx.Fill(belly, new EllipsePolygon(16, 20, 5));
 });
 
-// Mouth
+// Eyes + mouth
+var eye = Color.Black;
 img.Mutate(ctx =>
 {
-    ctx.Fill(eye, new Rectangle(7, 10, 2, 1));
+    ctx.Fill(eye, new Rectangle(12, 16, 2, 2));
+    ctx.Fill(eye, new Rectangle(18, 16, 2, 2));
+    ctx.Fill(eye, new Rectangle(15, 20, 2, 1));
 });
-// Scale up 16x → 256x256 for visibility
-img.Mutate(ctx => ctx.Resize(size * 16, size * 16, KnownResamplers.NearestNeighbor));
+
+// Scale up for visibility
+img.Mutate(ctx => ctx.Resize(size * 8, size * 8, KnownResamplers.NearestNeighbor));
 
 // Save
 var tag = Args[0];
