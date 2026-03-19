@@ -1,5 +1,8 @@
 ## 🐾 Release Mascot
 
 <!-- mascot-start -->
-_No mascot yet. Make a release to summon one!_
+## 🐾 Release Mascot: The Determined Hedgehog
+
+![The Determined Hedgehog](mascots/1.0.0-alpha004.svg)
 <!-- mascot-end -->
+
