@@ -15,7 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Fetch full history so we can push back cleanly
           fetch-depth: 0
 
       # ── 1. Generate the mascot image ──────────────────────────────────────
@@ -25,26 +24,37 @@ jobs:
           Tag: ${{ github.event.release.tag_name }}
 
       # ── 2. Generate a random mascot name ─────────────────────────────────
-      - name: Install dotnet-script
-        run: dotnet tool install -g dotnet-script
-
       - name: Generate mascot name
         id: mascot_name
+        shell: bash
         run: |
-          NAME=$(dotnet script scripts/GenerateMascotName.csx -- "${{ github.event.release.tag_name }}")
-          echo "name=$NAME" >> $GITHUB_OUTPUT
+          # dotnet-script was already installed by the action above
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          NAME=$(dotnet script "$GITHUB_WORKSPACE/scripts/GenerateMascotName.csx" -- "${{ github.event.release.tag_name }}")
+          echo "Generated name: $NAME"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Verify mascot name was captured
+        shell: bash
+        run: |
+          echo "Mascot name is: '${{ steps.mascot_name.outputs.name }}'"
+          if [ -z "${{ steps.mascot_name.outputs.name }}" ]; then
+            echo "ERROR: Mascot name is empty!"
+            exit 1
+          fi
 
       # ── 3. Update the README hall of fame ────────────────────────────────
       - name: Update README with new mascot
         shell: pwsh
         run: |
-          scripts/UpdateReadme.ps1 \
-            -Tag "${{ github.event.release.tag_name }}" \
-            -MascotName "${{ steps.mascot_name.outputs.name }}" \
-            -RepoRoot "${{ github.workspace }}"
+          & "$env:GITHUB_WORKSPACE/scripts/UpdateReadme.ps1" `
+            -Tag "${{ github.event.release.tag_name }}" `
+            -MascotName "${{ steps.mascot_name.outputs.name }}" `
+            -RepoRoot "$env:GITHUB_WORKSPACE"
 
       # ── 4. Commit everything back ─────────────────────────────────────────
       - name: Commit mascot and README update
+        shell: bash
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
