@@ -18,6 +18,12 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.release.target_commitish }}
 
+      - name: Install dotnet-script
+        run: dotnet tool install -g dotnet-script
+
+      - name: Add dotnet tools to PATH
+        run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
       - name: Run mascot generator
         shell: pwsh
         run: |
