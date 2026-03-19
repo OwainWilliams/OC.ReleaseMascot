@@ -7,12 +7,25 @@ using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.Drawing;
 using System;
+using System.IO;
 
-// Canvas size (base pixel grid)
+// ------------------------------
+// FIX 1: Ensure absolute paths
+// ------------------------------
+var root = Directory.GetCurrentDirectory();
+var outDir = Path.Combine(root, "mascots");
+Directory.CreateDirectory(outDir);
+
+var tag = Args[0];
+var outFile = Path.Combine(outDir, $"{tag}.png");
+
+// ------------------------------
+// Monster generator
+// ------------------------------
+
 int size = 32;
 var rand = new Random();
 
-// Pastel-ish but with monster variation
 Color RandomColor() =>
     Color.FromRgb(
         (byte)rand.Next(80, 255),
@@ -30,11 +43,9 @@ var outline = Color.FromRgb(
 var img = new Image<Rgba32>(size, size);
 img.Mutate(ctx => ctx.Fill(Color.Transparent));
 
-// Pick monster type
 string[] types = { "slime", "ghost", "dragon", "imp", "beast", "winged" };
 string monster = types[rand.Next(types.Length)];
 
-// Draw silhouette
 img.Mutate(ctx =>
 {
     switch (monster)
@@ -59,7 +70,6 @@ img.Mutate(ctx =>
             ctx.Fill(outline, new EllipsePolygon(16, 18, 11));
             ctx.Fill(body, new EllipsePolygon(16, 18, 10));
 
-            // horns
             ctx.Fill(outline, new Polygon(new PointF[] {
                 new(10,6), new(8,2), new(12,6)
             }));
@@ -73,7 +83,6 @@ img.Mutate(ctx =>
                 new(22,6), new(23,3), new(21,6)
             }));
 
-            // tail spike
             ctx.Fill(outline, new Polygon(new PointF[] {
                 new(16,28), new(14,30), new(18,30)
             }));
@@ -86,7 +95,6 @@ img.Mutate(ctx =>
             ctx.Fill(outline, new EllipsePolygon(16, 18, 10));
             ctx.Fill(body, new EllipsePolygon(16, 18, 9));
 
-            // small horns
             ctx.Fill(outline, new EllipsePolygon(10, 6, 2));
             ctx.Fill(outline, new EllipsePolygon(22, 6, 2));
             ctx.Fill(body, new EllipsePolygon(10, 6, 1));
@@ -97,7 +105,6 @@ img.Mutate(ctx =>
             ctx.Fill(outline, new EllipsePolygon(16, 18, 12));
             ctx.Fill(body, new EllipsePolygon(16, 18, 11));
 
-            // ears
             ctx.Fill(outline, new EllipsePolygon(8, 8, 3));
             ctx.Fill(outline, new EllipsePolygon(24, 8, 3));
             ctx.Fill(body, new EllipsePolygon(8, 8, 2));
@@ -108,7 +115,6 @@ img.Mutate(ctx =>
             ctx.Fill(outline, new EllipsePolygon(16, 18, 10));
             ctx.Fill(body, new EllipsePolygon(16, 18, 9));
 
-            // wings
             ctx.Fill(outline, new EllipsePolygon(6, 18, 6, 3));
             ctx.Fill(outline, new EllipsePolygon(26, 18, 6, 3));
             ctx.Fill(body, new EllipsePolygon(6, 18, 5, 2));
@@ -117,7 +123,7 @@ img.Mutate(ctx =>
     }
 });
 
-// Add belly highlight
+// Belly highlight
 var belly = Color.FromRgb(
     (byte)Math.Min(body.R + 40, 255),
     (byte)Math.Min(body.G + 40, 255),
@@ -129,7 +135,7 @@ img.Mutate(ctx =>
     ctx.Fill(belly, new EllipsePolygon(16, 20, 5));
 });
 
-// Eyes + mouth
+// Face
 var eye = Color.Black;
 img.Mutate(ctx =>
 {
@@ -138,10 +144,11 @@ img.Mutate(ctx =>
     ctx.Fill(eye, new Rectangle(15, 20, 2, 1));
 });
 
-// Scale up for visibility
+// Scale up
 img.Mutate(ctx => ctx.Resize(size * 8, size * 8, KnownResamplers.NearestNeighbor));
 
-// Save
-var tag = Args[0];
-Directory.CreateDirectory("mascots");
-img.Save($"mascots/{tag}.png");
+// ------------------------------
+// FIX 2: Save to absolute path
+// ------------------------------
+img.Save(outFile);
+Console.WriteLine($"Saved mascot to: {outFile}");
