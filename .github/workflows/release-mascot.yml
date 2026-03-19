@@ -22,7 +22,7 @@ jobs:
         run: |
           $tag = "${{ github.ref_name }}"
           Write-Host "Release tag is $tag"
-          ./scripts/Generate-Mascot.ps1 -Tag $tag
+          ./scripts/generate-mascot.ps1 -Tag $tag
 
       - name: Commit and push changes
         run: |
