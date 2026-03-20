@@ -10,12 +10,46 @@
 A GitHub Action that generates a unique mascot for every release.
 
 ## Usage
+Create a new action or add to your current release pipeline. Here is an example Action which I store in `.github/workflows/generateMascot.yml`
 
 ```yaml
-- uses: OwainWilliams/OC.ReleaseMascot@main
-  with:
-    Tag: ${{ github.event.release.tag_name }}
+name: Generate Mascot
+ 
+on:
+  release:
+    types: [published]
+ 
+permissions:
+  contents: write
+ 
+jobs:
+  generate-mascot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+ 
+      - name: Generate Release Mascot
+        uses: OwainWilliams/OC.ReleaseMascot@main
+        with:
+          Tag: ${{ github.event.release.tag_name }}
+ 
+      - name: Commit mascot
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add mascots/
+          git commit -m "chore: add mascot for ${{ github.event.release.tag_name }}"
+          git push
 ```
+
+You may need to change `ref:master` if you have a different branch name e.g. `ref:main` 
+Other than that, this will create a mascot within a mascot folder on the root of your repo. 
+
+
 
 ---
 
