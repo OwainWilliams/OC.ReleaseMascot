@@ -69,13 +69,9 @@ jobs:
 
 Add the following section to your `README.md` wherever you want the Hall of Fame to appear:
 
-```markdown
-## 🏆 Mascot Hall of Fame
-
 &lt;!-- MASCOT_HALL_OF_FAME --&gt;
-```
 
-> ⚠️ The `&lt;!-- MASCOT_HALL_OF_FAME --&gt;` comment is **required**. The action uses it to know where to inject new entries. It is invisible to readers on GitHub — it's just a marker. Without it, the README update step will fail.
+> ⚠️ The &lt;!-- MASCOT_HALL_OF_FAME --&gt; comment is **required**. The action uses it to know where to inject new entries. It is invisible to readers on GitHub — it's just a marker. Without it, the README update step will fail.
 
 ---
 
@@ -123,7 +119,7 @@ Uses [SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp) to draw a 3
 Fuses random syllable chunks (prefix + middle + suffix) to produce Pokémon-style names. The name is seeded by the release tag, so the same tag always produces the same name — reruns are safe.
 
 **3. Update the README**
-Finds the `&lt;!-- MASCOT_HALL_OF_FAME --&gt;` marker in your README and injects the new entry immediately after it.
+Finds the &lt;!-- MASCOT_HALL_OF_FAME --&gt; marker in your README and injects the new entry immediately after it.
 
 **4. Commit and push**
 Commits the new image and updated README with a message like:
@@ -148,7 +144,7 @@ permissions:
 ## ❓ Troubleshooting
 
 **`marker not found` error**
-The `&lt;!-- MASCOT_HALL_OF_FAME --&gt;` comment is missing from your `README.md`. Add it exactly as shown — correct capitalisation, no extra spaces.
+The &lt;!-- MASCOT_HALL_OF_FAME --&gt; comment is missing from your `README.md`. Add it exactly as shown — correct capitalisation, no extra spaces.
 
 **Tag name is blank in the logs**
 Your workflow is not triggered by a release event. Make sure you are using `on: release: types: [published]` — triggers like `push` or `workflow_dispatch` do not populate `github.event.release.tag_name`.
