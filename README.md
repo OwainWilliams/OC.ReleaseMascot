@@ -80,12 +80,7 @@ Add the following section to your `README.md` wherever you want the Hall of Fame
 ---
 ```
 
-> ⚠️ The `<!-- MASCOT_HALL_OF_FAME -->
-### `3.0.0` — Spectrafuramon
-
-![Spectrafuramon (3.0.0)](mascots/3.0.0.png)
-
----` comment is **required**. The action uses it to know where to inject new entries. It is invisible to readers on GitHub — it's just a marker. Without it, the README update step will fail.
+> ⚠️ The `!-- MASCOT_HALL_OF_FAME ---` comment is **required**. The action uses it to know where to inject new entries. It is invisible to readers on GitHub — it's just a marker. Without it, the README update step will fail.
 
 ---
 
