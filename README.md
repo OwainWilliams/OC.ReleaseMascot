@@ -145,12 +145,6 @@ permissions:
 
 ---
 
-## 🏆 Mascot Hall of Fame
-
-<!-- MASCOT_HALL_OF_FAME -->
-
----
-
 ## ❓ Troubleshooting
 
 **`marker not found` error**
