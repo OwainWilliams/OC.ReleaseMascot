@@ -1,6 +1,5 @@
 name: 'OC Release Mascot'
-description: 'Generates a unique mascot image for a release and commits it to the repository'
-author: 'OwainWilliams'
+description: 'Generates a unique mascot image, gives it a Pokémon-style name, and updates the README hall of fame'
 
 inputs:
   Tag:
@@ -23,7 +22,36 @@ runs:
       shell: bash
       run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
+    # ── 1. Generate the mascot image ─────────────────────────────────────
     - name: Generate mascot image
       shell: bash
       run: |
         dotnet script "${{ github.action_path }}/scripts/generate-mascot.csx" -- "${{ inputs.Tag }}" "${{ github.workspace }}"
+
+    # ── 2. Generate a Pokémon-style mascot name ───────────────────────────
+    - name: Generate mascot name
+      id: mascot_name
+      shell: bash
+      run: |
+        NAME=$(dotnet script "${{ github.action_path }}/scripts/GenerateMascotName.csx" -- "${{ inputs.Tag }}")
+        echo "Generated name: $NAME"
+        echo "name=$NAME" >> "$GITHUB_OUTPUT"
+
+    # ── 3. Update the README hall of fame ────────────────────────────────
+    - name: Update README with new mascot
+      shell: pwsh
+      run: |
+        & "${{ github.action_path }}/scripts/UpdateReadme.ps1" `
+          -Tag "${{ inputs.Tag }}" `
+          -MascotName "${{ steps.mascot_name.outputs.name }}" `
+          -RepoRoot "${{ github.workspace }}"
+
+    # ── 4. Commit everything back ─────────────────────────────────────────
+    - name: Commit mascot and README update
+      shell: bash
+      run: |
+        git config user.name  "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add mascots/ README.md
+        git commit -m "chore: add mascot for ${{ inputs.Tag }} — ${{ steps.mascot_name.outputs.name }}"
+        git push origin HEAD:main
