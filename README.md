@@ -63,6 +63,11 @@ Examples of how to do this can be found in the `/scripts` folder in this repo
 ![Chronorexeon (1.3.0-alpha001)](mascots/1.3.0-alpha001.png)
 
 ---
+### `1.3.0-alpha001` — Chronorexeon
+
+![Chronorexeon (1.3.0-alpha001)](mascots/1.3.0-alpha001.png)
+
+---
 ### `1.2.1-alpha001` — Tempravoel
 
 ![Tempravoel (1.2.1-alpha001)](mascots/1.2.1-alpha001.png)
