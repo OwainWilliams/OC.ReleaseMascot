@@ -58,6 +58,11 @@ Examples of how to do this can be found in the `/scripts` folder in this repo
 ## 🏆 Mascot Hall of Fame
 
 <!-- MASCOT_HALL_OF_FAME -->
+### `1.2.1-alpha001` — Tempravoel
+
+![Tempravoel (1.2.1-alpha001)](mascots/1.2.1-alpha001.png)
+
+---
 ### `1.2.0` — Lumilixara
 
 ![Lumilixara (1.2.0)](mascots/1.2.0.png)
