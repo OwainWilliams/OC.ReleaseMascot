@@ -1,59 +1,64 @@
-# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
-name: 'OC Release Mascot'
-description: 'Generates a unique mascot image, gives it a Pokémon-style name, and updates the README hall of fame'
-author: 'OwainWilliams'
+name: Release Mascot
 
-inputs:
-  Tag:
-    description: 'The release tag name (e.g. 1.0.0). Used to name the mascot file and seed generation.'
-    required: true
+on:
+  release:
+    types: [published]
 
-runs:
-  using: 'composite'
-  steps:
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
+permissions:
+  contents: write
 
-    - name: Install dotnet-script
-      shell: bash
-      run: dotnet tool install -g dotnet-script
+jobs:
+  mascot:
+    runs-on: ubuntu-latest
 
-    - name: Add dotnet tools to PATH
-      shell: bash
-      run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
-    # ── 1. Generate the mascot image ─────────────────────────────────────
-    - name: Generate mascot image
-      shell: bash
-      run: |
-        dotnet script "${{ github.action_path }}/scripts/generate-mascot.csx" -- "${{ inputs.Tag }}" "${{ github.workspace }}"
+      # ── 1. Generate the mascot image ──────────────────────────────────────
+      - name: Generate Release Mascot image
+        uses: OwainWilliams/OC.ReleaseMascot@main
+        with:
+          Tag: ${{ github.event.release.tag_name }}
 
-    # ── 2. Generate a Pokémon-style mascot name ───────────────────────────
-    - name: Generate mascot name
-      id: mascot_name
-      shell: bash
-      run: |
-        NAME=$(dotnet script "${{ github.action_path }}/scripts/GenerateMascotName.csx" -- "${{ inputs.Tag }}")
-        echo "Generated name: $NAME"
-        echo "name=$NAME" >> "$GITHUB_OUTPUT"
+      # ── 2. Generate a random mascot name ─────────────────────────────────
+      - name: Generate mascot name
+        id: mascot_name
+        shell: bash
+        run: |
+          # dotnet-script was already installed by the action above
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          NAME=$(dotnet script "$GITHUB_WORKSPACE/scripts/GenerateMascotName.csx" -- "${{ github.event.release.tag_name }}")
+          echo "Generated name: $NAME"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
 
-    # ── 3. Update the README hall of fame ────────────────────────────────
-    - name: Update README with new mascot
-      shell: pwsh
-      run: |
-        & "${{ github.action_path }}/scripts/UpdateReadme.ps1" `
-          -Tag "${{ inputs.Tag }}" `
-          -MascotName "${{ steps.mascot_name.outputs.name }}" `
-          -RepoRoot "${{ github.workspace }}"
+      - name: Verify mascot name was captured
+        shell: bash
+        run: |
+          echo "Mascot name is: '${{ steps.mascot_name.outputs.name }}'"
+          if [ -z "${{ steps.mascot_name.outputs.name }}" ]; then
+            echo "ERROR: Mascot name is empty!"
+            exit 1
+          fi
 
-    # ── 4. Commit everything back ─────────────────────────────────────────
-    - name: Commit mascot and README update
-      shell: bash
-      run: |
-        git config user.name  "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git add mascots/ README.md
-        git commit -m "chore: add mascot for ${{ inputs.Tag }} — ${{ steps.mascot_name.outputs.name }}"
-        git push origin HEAD:main
+      # ── 3. Update the README hall of fame ────────────────────────────────
+      - name: Update README with new mascot
+        shell: pwsh
+        run: |
+          & "$env:GITHUB_WORKSPACE/scripts/UpdateReadme.ps1" `
+            -Tag "${{ github.event.release.tag_name }}" `
+            -MascotName "${{ steps.mascot_name.outputs.name }}" `
+            -RepoRoot "$env:GITHUB_WORKSPACE"
+
+      # ── 4. Commit everything back ─────────────────────────────────────────
+      - name: Commit mascot and README update
+        shell: bash
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add mascots/ README.md
+          git commit -m "chore: add mascot for ${{ github.event.release.tag_name }} — ${{ steps.mascot_name.outputs.name }}"
+          git push
