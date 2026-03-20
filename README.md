@@ -73,9 +73,19 @@ Add the following section to your `README.md` wherever you want the Hall of Fame
 ## 🏆 Mascot Hall of Fame
 
 <!-- MASCOT_HALL_OF_FAME -->
+### `3.0.0` — Spectrafuramon
+
+![Spectrafuramon (3.0.0)](mascots/3.0.0.png)
+
+---
 ```
 
-> ⚠️ The `<!-- MASCOT_HALL_OF_FAME -->` comment is **required**. The action uses it to know where to inject new entries. It is invisible to readers on GitHub — it's just a marker. Without it, the README update step will fail.
+> ⚠️ The `<!-- MASCOT_HALL_OF_FAME -->
+### `3.0.0` — Spectrafuramon
+
+![Spectrafuramon (3.0.0)](mascots/3.0.0.png)
+
+---` comment is **required**. The action uses it to know where to inject new entries. It is invisible to readers on GitHub — it's just a marker. Without it, the README update step will fail.
 
 ---
 
@@ -123,7 +133,12 @@ Uses [SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp) to draw a 3
 Fuses random syllable chunks (prefix + middle + suffix) to produce Pokémon-style names. The name is seeded by the release tag, so the same tag always produces the same name — reruns are safe.
 
 **3. Update the README**
-Finds the `<!-- MASCOT_HALL_OF_FAME -->` marker in your README and injects the new entry immediately after it.
+Finds the `<!-- MASCOT_HALL_OF_FAME -->
+### `3.0.0` — Spectrafuramon
+
+![Spectrafuramon (3.0.0)](mascots/3.0.0.png)
+
+---` marker in your README and injects the new entry immediately after it.
 
 **4. Commit and push**
 Commits the new image and updated README with a message like:
@@ -148,7 +163,12 @@ permissions:
 ## ❓ Troubleshooting
 
 **`marker not found` error**
-The `<!-- MASCOT_HALL_OF_FAME -->` comment is missing from your `README.md`. Add it exactly as shown — correct capitalisation, no extra spaces.
+The `<!-- MASCOT_HALL_OF_FAME -->
+### `3.0.0` — Spectrafuramon
+
+![Spectrafuramon (3.0.0)](mascots/3.0.0.png)
+
+---` comment is missing from your `README.md`. Add it exactly as shown — correct capitalisation, no extra spaces.
 
 **Tag name is blank in the logs**
 Your workflow is not triggered by a release event. Make sure you are using `on: release: types: [published]` — triggers like `push` or `workflow_dispatch` do not populate `github.event.release.tag_name`.
@@ -177,6 +197,11 @@ Built with way too much enthusiasm by [Owain Williams](https://github.com/OwainW
 ## 🏆 Mascot Hall of Fame
 
 <!-- MASCOT_HALL_OF_FAME -->
+### `3.0.0` — Spectrafuramon
+
+![Spectrafuramon (3.0.0)](mascots/3.0.0.png)
+
+---
 ### `2.0.1` — Sylvanatoth
 
 ![Sylvanatoth (2.0.1)](mascots/2.0.1.png)
