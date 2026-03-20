@@ -58,6 +58,11 @@ Examples of how to do this can be found in the `/scripts` folder in this repo
 ## 🏆 Mascot Hall of Fame
 
 <!-- MASCOT_HALL_OF_FAME -->
+### `2.0.1` — Sylvanatoth
+
+![Sylvanatoth (2.0.1)](mascots/2.0.1.png)
+
+---
 ### `2.0.0` — Frostshiyx
 
 ![Frostshiyx (2.0.0)](mascots/2.0.0.png)
