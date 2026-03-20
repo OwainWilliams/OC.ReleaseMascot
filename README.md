@@ -49,7 +49,9 @@ jobs:
 You may need to change `ref:master` if you have a different branch name e.g. `ref:main` 
 Other than that, this will create a mascot within a mascot folder on the root of your repo. 
 
+You could then amend your actions to automatically update your `Readme` file or another file within your repo to display your mascot. 
 
+Examples of how to do this can be found in the `/scripts` folder in this repo
 
 ---
 
